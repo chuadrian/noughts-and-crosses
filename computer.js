@@ -5,7 +5,6 @@ let boxes = document.querySelectorAll(".box");
 
 const O_TEXT = "O";
 const X_TEXT = "X";
-const EMPTY_TEXT = "";
 
 let currentPlayer = O_TEXT;
 let spaces = Array(9).fill(null);
@@ -30,18 +29,12 @@ function boxClicked(e) {
 
         if (playerWins() !== false) {
             playerText.innerHTML = `<h2 class="message">Congrats Player ${currentPlayer}</h2>`;
-
-            winnerIndicator = playerWins();
-
-            winnerIndicator.map(
-                (box) => (boxes[box].style.backgroundColor = "#2684af")
-            );
-            containerEl.classList.add('success');
-
+            highlightWinningBoxes(playerWins());
             updateScore(currentPlayer);
+            showWinnerMessage(currentPlayer);
         } else if (isDraw()) {
             playerText.innerHTML = `<h2 class="message">It's a Draw!</h2>`;
-            setTimeout(restartGame, 2000); // Restart the game after 2 seconds
+            setTimeout(restartGame, 2000);
         } else {
             currentPlayer = currentPlayer === X_TEXT ? O_TEXT : X_TEXT;
             if (currentPlayer === X_TEXT) {
@@ -72,18 +65,12 @@ function computerMove() {
 
     if (playerWins() !== false) {
         playerText.innerHTML = `<h2 class="message">Computer ${currentPlayer} won the game</h2>`;
-
-        winnerIndicator = playerWins();
-
-        winnerIndicator.map(
-            (box) => (boxes[box].style.backgroundColor = "#2684af")
-        );
-        containerEl.classList.add('success');
-
+        highlightWinningBoxes(playerWins());
         updateScore(currentPlayer);
+        showWinnerMessage(currentPlayer);
     } else if (isDraw()) {
         playerText.innerHTML = `<h2 class="message">It's a Draw!</h2>`;
-        setTimeout(restartGame, 2000); // Restart the game after 2 seconds
+        setTimeout(restartGame, 2000);
     } else {
         currentPlayer = currentPlayer === X_TEXT ? O_TEXT : X_TEXT;
     }
@@ -96,6 +83,10 @@ function minimax(newSpaces, depth, isMaximizing) {
     }
 
     if (isDraw()) {
+        return 0;
+    }
+
+    if (depth >= 2) { // Limiting depth for variability
         return 0;
     }
 
@@ -124,7 +115,6 @@ function minimax(newSpaces, depth, isMaximizing) {
     }
 }
 
-// Winning combinations
 const winningCombination = [
     [0, 1, 2],
     [3, 4, 5],
@@ -136,24 +126,21 @@ const winningCombination = [
     [2, 4, 6]
 ];
 
-// Check if player wins
 function playerWins() {
     for (const condition of winningCombination) {
         let [a, b, c] = condition;
 
         if (spaces[a] && spaces[a] === spaces[b] && spaces[a] === spaces[c]) {
-            return spaces[a];
+            return condition;
         }
     }
     return false;
 }
 
-// Check if the game is a draw
 function isDraw() {
     return spaces.every(space => space !== null);
 }
 
-// Update the score
 function updateScore(player) {
     if (player === X_TEXT) {
         scoreX++;
@@ -164,7 +151,24 @@ function updateScore(player) {
     }
 }
 
-// Reset the game
+function highlightWinningBoxes(winningCombination) {
+    winningCombination.forEach(box => {
+        boxes[box].style.backgroundColor = "#2684af";
+    });
+    containerEl.classList.add('success');
+}
+
+function showWinnerMessage(player) {
+    setTimeout(() => {
+        if (player === X_TEXT) {
+            playerText.innerHTML = `<h2 class="message">Computer X won the game</h2>`;
+        } else {
+            playerText.innerHTML = `<h2 class="message">Congrats Player O</h2>`;
+        }
+        containerEl.classList.add('success');
+    }, 100);
+}
+
 restartBtn.addEventListener('click', restartGame);
 
 function restartGame() {
@@ -180,7 +184,6 @@ function restartGame() {
     containerEl.classList.remove("success");
 
     if (currentPlayer === X_TEXT) {
-        // If computer starts, make the first move
         setTimeout(computerMove, 500);
     }
 }
