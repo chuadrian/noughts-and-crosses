@@ -197,3 +197,14 @@ section{
         font-size: 20px;
     }
 }
+@media (max-width: 370px){
+    .logo{
+        display: none;
+    }
+    .hero-text h1{
+        font-size: 40px;
+    }
+    .hero-text a{
+        font-size: 10px;
+    }
+}
